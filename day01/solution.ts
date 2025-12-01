@@ -24,28 +24,7 @@ function solve(data: string, checkEveryStep: boolean): number {
     let count = 0;
 
     for (const { direction, amount } of instructions) {
-        if (checkEveryStep) {
-            // Part 2 logic: check every step
-            for (let i = 0; i < amount; i++) {
-                if (direction === 'R') {
-                    pos = (pos + 1) % 100;
-                } else {
-                    pos = (pos - 1 + 100) % 100;
-                }
-
-                if (pos === 0) count++;
-            }
-        } else {
-            // Part 1 logic: check only at the end
-            if (direction === 'R') {
-                pos = (pos + amount) % 100;
-            } else {
-                pos = (pos - amount) % 100;
-                if (pos < 0) pos += 100;
-            }
-
-            if (pos === 0) count++;
-        }
+        for (let i = 0; i < (checkEveryStep ? amount : 1); i++) if ((pos = (pos + (direction === 'R' ? 1 : -1)*(checkEveryStep ? 1 : amount) + 100) % 100) === 0) count++;
     }
     return count;
 }

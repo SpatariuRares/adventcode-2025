@@ -1,4 +1,5 @@
 # Day 01 part 2
+
 You're sure that's the right password, but the door won't open. You knock, but nobody answers. You build a snowman while you think.
 
 As you're rolling the snowballs for your snowman, you find another security document that must have fallen into the snow:
