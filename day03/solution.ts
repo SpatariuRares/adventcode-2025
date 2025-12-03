@@ -12,39 +12,39 @@ import * as path from 'path';
  * 1. La cifra più alta
  * 2. A parità di cifra, l'indice più basso (poiché n - index sarà più alto)
  */
-function buildSparseTable(line: string): number[][] {
-    const n = line.length;
-    const k = Math.floor(Math.log2(n)) + 1;
-    const st: number[][] = Array.from({ length: n }, () => new Array(k));
-    const multiplier = n + 1;
+function buildSparseTable(inputString: string): number[][] {
+    const length = inputString.length;
+    const maxLog = Math.floor(Math.log2(length)) + 1;
+    const sparseTable: number[][] = Array.from({ length: length }, () => new Array(maxLog));
+    const encodingMultiplier = length + 1;
 
-    for (let i = 0; i < n; i++) {
-        const digit = line.charCodeAt(i) - 48; // Più veloce di parseInt
-        // Codifica: cifra alta > cifra bassa. Indice basso > indice alto (quindi n - i)
-        st[i][0] = digit * multiplier + (n - i);
+    for (let i = 0; i < length; i++) {
+        const digit = inputString.charCodeAt(i) - 48; // Più veloce di parseInt
+        // Codifica: cifra alta > cifra bassa. Indice basso > indice alto (quindi length - i)
+        sparseTable[i][0] = digit * encodingMultiplier + (length - i);
     }
 
-    for (let j = 1; j < k; j++) {
+    for (let j = 1; j < maxLog; j++) {
         const len = 1 << (j - 1);
-        for (let i = 0; i + (1 << j) <= n; i++) {
+        for (let i = 0; i + (1 << j) <= length; i++) {
             // Prendi il massimo tra i due intervalli
-            st[i][j] = Math.max(st[i][j - 1], st[i + len][j - 1]);
+            sparseTable[i][j] = Math.max(sparseTable[i][j - 1], sparseTable[i + len][j - 1]);
         }
     }
-    return st;
+    return sparseTable;
 }
 
 /**
  * Esegue una query sulla Sparse Table per trovare il valore massimo nell'intervallo [L, R].
  * Decodifica il risultato per restituire la cifra e l'indice.
  */
-function queryMax(st: number[][], L: number, R: number, n: number): { digit: number, index: number } {
-    const j = Math.floor(Math.log2(R - L + 1));
-    const maxEncoded = Math.max(st[L][j], st[R - (1 << j) + 1][j]);
+function queryMax(sparseTable: number[][], rangeStart: number, rangeEnd: number, length: number): { digit: number, index: number } {
+    const logRange = Math.floor(Math.log2(rangeEnd - rangeStart + 1));
+    const maxEncoded = Math.max(sparseTable[rangeStart][logRange], sparseTable[rangeEnd - (1 << logRange) + 1][logRange]);
     
-    const multiplier = n + 1;
-    const digit = Math.floor(maxEncoded / multiplier);
-    const index = n - (maxEncoded % multiplier);
+    const encodingMultiplier = length + 1;
+    const digit = Math.floor(maxEncoded / encodingMultiplier);
+    const index = length - (maxEncoded % encodingMultiplier);
     return { digit, index };
 }
 
@@ -52,22 +52,22 @@ function queryMax(st: number[][], L: number, R: number, n: number): { digit: num
  * Trova la sottosequenza di lunghezza 'k' che forma il numero più grande possibile.
  * Utilizza RMQ su Sparse Table per trovare la cifra massima in O(1).
  */
-function findMaxSubsequence(st: number[][], n: number, k: number): number {
-    let currentIdx = -1; 
+function findMaxSubsequence(sparseTable: number[][], length: number, subsequenceLength: number): number {
+    let lastIndex = -1; 
     let result = ""; 
 
-    for (let remaining = k; remaining > 0; remaining--) {
-        const searchStart = currentIdx + 1; 
-        const searchEnd = n - remaining; 
+    for (let digitsNeeded = subsequenceLength; digitsNeeded > 0; digitsNeeded--) {
+        const rangeStart = lastIndex + 1; 
+        const rangeEnd = length - digitsNeeded; 
         
-        if (searchStart >= n || searchEnd < searchStart) break;
+        if (rangeStart >= length || rangeEnd < rangeStart) break;
 
-        // Trova la cifra massima nell'intervallo valido [searchStart, searchEnd]
+        // Trova la cifra massima nell'intervallo valido [rangeStart, rangeEnd]
         // La query restituisce la cifra più alta e la sua prima posizione in O(1)
-        const { digit, index } = queryMax(st, searchStart, searchEnd, n);
+        const { digit, index } = queryMax(sparseTable, rangeStart, rangeEnd, length);
         
         result += digit.toString();
-        currentIdx = index;
+        lastIndex = index;
     }
 
     return result === "" ? 0 : parseInt(result, 10); 
@@ -90,13 +90,13 @@ function solve(input: string): { part1: number, part2: number } {
         if (!trimmedLine) continue;
 
         // Costruisci la Sparse Table una sola volta per riga
-        const st = buildSparseTable(trimmedLine);
-        const n = trimmedLine.length;
+        const sparseTable = buildSparseTable(trimmedLine);
+        const lineLength = trimmedLine.length;
 
         // Parte 1: Trova la sottosequenza massima di lunghezza 2
-        totalPart1 += findMaxSubsequence(st, n, 2); 
+        totalPart1 += findMaxSubsequence(sparseTable, lineLength, 2); 
         // Parte 2: Trova la sottosequenza massima di lunghezza 12
-        totalPart2 += findMaxSubsequence(st, n, 12); 
+        totalPart2 += findMaxSubsequence(sparseTable, lineLength, 12); 
     }
 
     return { part1: totalPart1, part2: totalPart2 }; 
