@@ -53,10 +53,20 @@ function mergeRanges(ranges: Range[]): Range[] {
     return merged;
 }
 
-function isFresh(id: number, ranges: Range[]): boolean {
-    for (const range of ranges) {
+function isFreshBinary(id: number, ranges: Range[]): boolean {
+    let left = 0;
+    let right = ranges.length - 1;
+
+    while (left <= right) {
+        const mid = Math.floor((left + right) / 2);
+        const range = ranges[mid];
+
         if (id >= range.start && id <= range.end) {
             return true;
+        } else if (id < range.start) {
+            right = mid - 1;
+        } else {
+            left = mid + 1;
         }
     }
     return false;
@@ -66,7 +76,7 @@ function part1(mergedRanges: Range[], ids: number[]): number {
     
     let freshCount = 0;
     for (const id of ids) {
-        if (isFresh(id, mergedRanges)) {
+        if (isFreshBinary(id, mergedRanges)) {
             freshCount++;
         }
     }
