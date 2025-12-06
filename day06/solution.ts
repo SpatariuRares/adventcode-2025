@@ -1,119 +1,115 @@
 import * as fs from "fs";
 import * as path from "path";
 
-const input = fs.readFileSync(path.join(__dirname, "input.txt"), "utf-8");
+const inputContent = fs.readFileSync(
+  path.join(__dirname, "input.txt"),
+  "utf-8"
+);
 
-function getBlocks(data: string): string[][] {
-  const lines = data.split(/\r?\n/);
-  while (lines.length > 0 && lines[lines.length - 1].trim() === "") {
-    lines.pop();
-  }
-  if (lines.length === 0) return [];
+function extractProblemBlocks(rawData: string): string[][] {
+  const rawLines = rawData.split(/\r?\n/);
 
-  const maxLength = lines[0].length;
-  const paddedLines = lines.map((l) => l.padEnd(maxLength, " "));
-  const height = paddedLines.length;
+  const gridWidth = rawLines[0].length;
+  const gridLines = rawLines.map((l) => l.padEnd(gridWidth, " "));
+  const gridHeight = gridLines.length;
 
   const blocks: string[][] = [];
-
-  const isColEmpty = (col: number) => {
-    for (let r = 0; r < height; r++) {
-      if (paddedLines[r][col] !== " ") return false;
+  let currentColumn = 0;
+  while (currentColumn < gridWidth) {
+    let isCurrentColumnEmpty = true;
+    for (let row = 0; row < gridHeight; row++) {
+      if (gridLines[row][currentColumn] !== " ") {
+        isCurrentColumnEmpty = false;
+        break;
+      }
     }
-    return true;
-  };
 
-  let col = 0;
-  while (col < maxLength) {
-    if (isColEmpty(col)) {
-      col++;
+    if (isCurrentColumnEmpty) {
+      currentColumn++;
       continue;
     }
 
-    const start = col;
-    while (col < maxLength && !isColEmpty(col)) {
-      col++;
+    const startColumn = currentColumn;
+    while (currentColumn < gridWidth) {
+      let isColEmpty = true;
+      for (let row = 0; row < gridHeight; row++) {
+        if (gridLines[row][currentColumn] !== " ") {
+          isColEmpty = false;
+          break;
+        }
+      }
+      if (isColEmpty) break;
+      currentColumn++;
     }
-    const end = col;
+    const endColumn = currentColumn;
 
-    const blockCols: string[] = [];
-    for (let r = 0; r < height; r++) {
-      blockCols.push(paddedLines[r].substring(start, end));
+    const blockLines: string[] = [];
+    for (let row = 0; row < gridHeight; row++) {
+      blockLines.push(gridLines[row].substring(startColumn, endColumn));
     }
-    blocks.push(blockCols);
+    blocks.push(blockLines);
   }
+
   return blocks;
 }
 
-function solveBlockPart1(block: string[]): number {
-  const nums: number[] = [];
-  let op = "+";
+function solveProblemBlock(blockLines: string[]): {
+  part1: number;
+  part2: number;
+} {
+  const height = blockLines.length;
+  const width = blockLines[0].length;
 
-  for (const line of block) {
-    const trimmed = line.trim();
-    if (trimmed === "+" || trimmed === "*") {
-      op = trimmed;
-    } else if (trimmed !== "") {
-      const val = parseInt(trimmed, 10);
-      if (!isNaN(val)) nums.push(val);
+  let operatorRowIndex = height - 1;
+  let operatorSymbol = blockLines[operatorRowIndex].trim();
+
+  const rowNumbers: number[] = [];
+  for (let row = 0; row < height; row++) {
+    if (row === operatorRowIndex) continue;
+
+    const rowContent = blockLines[row].trim();
+    if (rowContent !== "") {
+      const val = parseInt(rowContent, 10);
+      if (!isNaN(val)) rowNumbers.push(val);
     }
   }
 
-  if (op === "+") return nums.reduce((a, b) => a + b, 0);
-  if (op === "*") return nums.reduce((a, b) => a * b, 1);
-  return 0;
-}
+  const colNumbers: number[] = [];
+  for (let col = 0; col < width; col++) {
+    let colString = "";
+    for (let row = 0; row < height; row++) {
+      if (row === operatorRowIndex) continue;
+      colString += blockLines[row][col];
+    }
 
-function solveBlockPart2(block: string[]): number {
-  let opRowIdx = -1;
-  let op = "";
-
-  for (let r = block.length - 1; r >= 0; r--) {
-    const trimmed = block[r].trim();
-    if (trimmed === "+" || trimmed === "*") {
-      op = trimmed;
-      opRowIdx = r;
-      break;
+    const trimmedCol = colString.trim();
+    if (trimmedCol !== "") {
+      const val = parseInt(trimmedCol, 10);
+      if (!isNaN(val)) colNumbers.push(val);
     }
   }
 
-  if (opRowIdx === -1) return 0;
+  const calculate = (nums: number[], op: string) => {
+    if (op === "+") return nums.reduce((sum, n) => sum + n, 0);
+    if (op === "*") return nums.reduce((prod, n) => prod * n, 1);
+    return 0;
+  };
 
-  const nums: number[] = [];
-  const width = block[0].length;
-
-  // Iterate columns to find numbers (Right-to-Left or Left-to-Right doesn't matter for sum/product)
-  for (let c = 0; c < width; c++) {
-    let numStr = "";
-    // Iterate rows excluding operator row
-    for (let r = 0; r < block.length; r++) {
-      if (r === opRowIdx) continue;
-      // Include spaces? No, spaces are part of the number column but valid digits are non-space
-      // If the column has a space, it's just not a digit.
-      numStr += block[r][c];
-    }
-
-    const trimmed = numStr.trim();
-    if (trimmed) {
-      const val = parseInt(trimmed, 10);
-      if (!isNaN(val)) nums.push(val);
-    }
-  }
-
-  if (op === "+") return nums.reduce((a, b) => a + b, 0);
-  if (op === "*") return nums.reduce((a, b) => a * b, 1);
-  return 0;
+  return {
+    part1: calculate(rowNumbers, operatorSymbol),
+    part2: calculate(colNumbers, operatorSymbol),
+  };
 }
 
-function part1(data: string): number {
-  const blocks = getBlocks(data);
-  return blocks.reduce((sum, b) => sum + solveBlockPart1(b), 0);
+const allBlocks = extractProblemBlocks(inputContent);
+let totalPart1 = 0;
+let totalPart2 = 0;
+
+for (const block of allBlocks) {
+  const result = solveProblemBlock(block);
+  totalPart1 += result.part1;
+  totalPart2 += result.part2;
 }
 
-function part2(data: string): number {
-  const blocks = getBlocks(data);
-  return blocks.reduce((sum, b) => sum + solveBlockPart2(b), 0);
-}
-
-console.log("Part 1:", part1(input));
-console.log("Part 2:", part2(input));
+console.log("Part 1:", totalPart1);
+console.log("Part 2:", totalPart2);
