@@ -1,10 +1,23 @@
 import * as fs from "fs";
 import * as path from "path";
+import * as readline from "readline";
 
-function parseInput(filePath: string): string[] {
+async function parseInput(filePath: string): Promise<string[]> {
   const absolutePath = path.resolve(__dirname, filePath);
-  const fileContent = fs.readFileSync(absolutePath, "utf-8");
-  return fileContent.trim().split(/\r?\n/);
+  const fileStream = fs.createReadStream(absolutePath);
+
+  const rl = readline.createInterface({
+    input: fileStream,
+    crlfDelay: Infinity,
+  });
+
+  const lines: string[] = [];
+  for await (const line of rl) {
+    if (line.trim()) {
+      lines.push(line);
+    }
+  }
+  return lines;
 }
 
 function findStart(lines: string[]): { row: number; col: number } | null {
@@ -14,6 +27,18 @@ function findStart(lines: string[]): { row: number; col: number } | null {
   }
   return null;
 }
+
+// ... existing code ...
+
+async function solve() {
+  const inputPath = process.argv[2] || "input.txt";
+  const lines = await parseInput(inputPath);
+
+  solvePart1Bitwise(lines);
+  solvePart2Recursive(lines);
+}
+
+solve();
 
 function solvePart1Bitwise(lines: string[]) {
   const Height = lines.length;
@@ -59,7 +84,6 @@ function solvePart1Bitwise(lines: string[]) {
 }
 
 class Part2Solver {
-  private memo = new Map<string, number>();
   private lines: string[];
   private Height: number;
   private Width: number;
@@ -70,27 +94,37 @@ class Part2Solver {
     this.Width = lines[0].length;
   }
 
-  public countTimelines(row: number, col: number): number {
-    if (col < 0 || col >= this.Width) return 1;
+  public countTimelines(startRow: number, startCol: number): bigint {
+    // DP array representing the number of timelines for the "next" row
+    // Initially represents row = Height, where all values are 1n (base case)
+    let nextRowCounts = new Array(this.Width).fill(1n);
 
-    if (row >= this.Height) return 1;
+    // Iterate bottom-up from the last row to the start row
+    for (let r = this.Height - 1; r >= startRow; r--) {
+      const currentRowCounts = new Array(this.Width);
+      const rowStr = this.lines[r];
 
-    const key = `${row},${col}`;
-    if (this.memo.has(key)) return this.memo.get(key)!;
+      for (let c = 0; c < this.Width; c++) {
+        // Optimization: We could restrict c to the relevant cone from startRow/startCol,
+        // but iterating all columns is safer and simpler for now given Width ~8000.
 
-    const char = this.lines[row][col];
-    let result = 0;
+        const char = rowStr[c];
 
-    if (char === "^") {
-      result =
-        this.countTimelines(row + 1, col - 1) +
-        this.countTimelines(row + 1, col + 1);
-    } else {
-      result = this.countTimelines(row + 1, col);
+        if (char === "^") {
+          // Look at r+1, c-1 and r+1, c+1
+          // If index is out of bounds, it returns 1n (base case: went off edge)
+          const leftVal = c - 1 < 0 ? 1n : nextRowCounts[c - 1];
+          const rightVal = c + 1 >= this.Width ? 1n : nextRowCounts[c + 1];
+          currentRowCounts[c] = leftVal + rightVal;
+        } else {
+          // Look at r+1, c
+          currentRowCounts[c] = nextRowCounts[c];
+        }
+      }
+      nextRowCounts = currentRowCounts;
     }
 
-    this.memo.set(key, result);
-    return result;
+    return nextRowCounts[startCol];
   }
 }
 
@@ -106,12 +140,4 @@ function solvePart2Recursive(lines: string[]) {
   console.log(`Part 2 (Recursive) - Total timelines: ${result}`);
 }
 
-function solve() {
-  const inputPath = process.argv[2] || "input.txt";
-  const lines = parseInput(inputPath);
-
-  solvePart1Bitwise(lines);
-  solvePart2Recursive(lines);
-}
-
-solve();
+// End of file
