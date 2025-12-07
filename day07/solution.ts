@@ -7,34 +7,31 @@ function parseInput(filePath: string): string[] {
   return fileContent.trim().split(/\r?\n/);
 }
 
+function findStart(lines: string[]): { row: number; col: number } | null {
+  for (let row = 0; row < lines.length; row++) {
+    const idx = lines[row].indexOf("S");
+    if (idx !== -1) return { row: row, col: idx };
+  }
+  return null;
+}
+
 function solvePart1(lines: string[]) {
   const Height = lines.length;
   const Width = lines[0].length;
+  const start = findStart(lines);
+  console.log("Height: ", Height, "Width: ", Width);
+  console.log("Start: ", start);
 
-  let startCol = -1;
-  let startRow = -1;
-
-  // Find S
-  for (let row = 0; row < Height; row++) {
-    const idx = lines[row].indexOf("S");
-    if (idx !== -1) {
-      startRow = row;
-      startCol = idx;
-      break;
-    }
-  }
-
-  if (startRow === -1) {
+  if (!start) {
     console.error("Start point 'S' not found.");
     return;
   }
 
   let currentBeams = new Set<number>();
-  currentBeams.add(startCol);
-
+  currentBeams.add(start.col);
   let totalSplits = 0;
 
-  for (let row = startRow + 1; row < Height; row++) {
+  for (let row = start.row + 1; row < Height; row++) {
     if (currentBeams.size === 0) break;
 
     const nextBeams = new Set<number>();
@@ -42,7 +39,6 @@ function solvePart1(lines: string[]) {
 
     for (const col of currentBeams) {
       const char = rowStr[col];
-
       if (char === "^") {
         totalSplits++;
         if (col - 1 >= 0) nextBeams.add(col - 1);
@@ -60,31 +56,19 @@ function solvePart1(lines: string[]) {
 function solvePart2(lines: string[]) {
   const Height = lines.length;
   const Width = lines[0].length;
+  const start = findStart(lines);
 
-  let startCol = -1;
-  let startRow = -1;
-
-  // Find S
-  for (let row = 0; row < Height; row++) {
-    const idx = lines[row].indexOf("S");
-    if (idx !== -1) {
-      startRow = row;
-      startCol = idx;
-      break;
-    }
-  }
-
-  if (startRow === -1) {
+  if (!start) {
     console.error("Start point 'S' not found.");
     return;
   }
 
   let currentBeams = new Map<number, number>();
-  currentBeams.set(startCol, 1);
+  currentBeams.set(start.col, 1);
 
   let completedTimelines = 0;
 
-  for (let row = startRow + 1; row < Height; row++) {
+  for (let row = start.row + 1; row < Height; row++) {
     const nextBeams = new Map<number, number>();
     const rowStr = lines[row];
 
@@ -113,7 +97,6 @@ function solvePart2(lines: string[]) {
     currentBeams = nextBeams;
     if (currentBeams.size === 0) break;
   }
-
   for (const count of currentBeams.values()) {
     completedTimelines += count;
   }
