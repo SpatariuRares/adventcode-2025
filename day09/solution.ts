@@ -23,108 +23,121 @@ const readInput = (filename: string): Point[] =>
       return { x, y };
     });
 
-const isBetween = (val: number, a: number, b: number) =>
-  val >= Math.min(a, b) && val <= Math.max(a, b);
-
-// Correctly handle unordered input for segment overlap
-const segmentsOverlap = (a1: number, a2: number, b1: number, b2: number) => {
-  return (
-    Math.max(Math.min(a1, a2), Math.min(b1, b2)) <
-    Math.min(Math.max(a1, a2), Math.max(b1, b2))
-  );
-};
-
-function isPointInPolygon(p: Point, poly: Point[]): boolean {
-  let inside = false;
-  const n = poly.length;
-  for (let i = 0, j = n - 1; i < n; j = i++) {
-    const [p1, p2] = [poly[i], poly[j]];
-    // On segment check
-    if (
-      isBetween(p.x, p1.x, p2.x) &&
-      isBetween(p.y, p1.y, p2.y) &&
-      ((p1.x === p2.x && p.x === p1.x) || (p1.y === p2.y && p.y === p1.y))
-    )
-      return true;
-
-    // Ray casting
-    if (
-      p1.y > p.y !== p2.y > p.y &&
-      p.x < ((p2.x - p1.x) * (p.y - p1.y)) / (p2.y - p1.y) + p1.x
-    )
-      inside = !inside;
-  }
-  return inside;
-}
-
-function intersects(rect: Rect, poly: Point[]): boolean {
-  const { minX, maxX, minY, maxY } = rect;
-  const n = poly.length;
-  for (let i = 0; i < n; i++) {
-    const [p1, p2] = [poly[i], poly[(i + 1) % n]];
-    // Vertical check: edgeX within (minX, maxX) AND edgeY overlaps (minY, maxY)
-    if (
-      p1.x === p2.x &&
-      p1.x > minX &&
-      p1.x < maxX &&
-      segmentsOverlap(p1.y, p2.y, minY, maxY)
-    )
-      return true;
-    // Horizontal check: edgeY within (minY, maxY) AND edgeX overlaps (minX, maxX)
-    if (
-      p1.y === p2.y &&
-      p1.y > minY &&
-      p1.y < maxY &&
-      segmentsOverlap(p1.x, p2.x, minX, maxX)
-    )
-      return true;
-  }
-  return false;
-}
-
 function solve() {
   const points = readInput("input.txt");
 
-  const solveFor = (partName: string, isValid: (r: Rect) => boolean) => {
-    console.time(partName);
-    let maxArea = 0;
-    for (let i = 0; i < points.length; i++) {
-      for (let j = i + 1; j < points.length; j++) {
-        const [p1, p2] = [points[i], points[j]];
-        const width = Math.abs(p1.x - p2.x) + 1;
-        const height = Math.abs(p1.y - p2.y) + 1;
-        const area = width * height;
+  console.time("Part 1");
+  let maxAreaP1 = 0;
+  for (let i = 0; i < points.length; i++) {
+    for (let j = i + 1; j < points.length; j++) {
+      const width = Math.abs(points[i].x - points[j].x) + 1;
+      const height = Math.abs(points[i].y - points[j].y) + 1;
+      const area = width * height;
+      if (area > maxAreaP1) maxAreaP1 = area;
+    }
+  }
+  console.log(`Part 1 Max Area: ${maxAreaP1}`);
+  console.timeEnd("Part 1");
 
-        if (area <= maxArea) continue;
+  console.time("Part 2");
 
-        // Create rect definition
-        const rect = {
-          minX: Math.min(p1.x, p2.x),
-          maxX: Math.max(p1.x, p2.x),
-          minY: Math.min(p1.y, p2.y),
-          maxY: Math.max(p1.y, p2.y),
-        };
+  const xs = Array.from(new Set(points.map((p) => p.x))).sort((a, b) => a - b);
+  const ys = Array.from(new Set(points.map((p) => p.y))).sort((a, b) => a - b);
+  const xMap = new Map(xs.map((val, i) => [val, i]));
+  const yMap = new Map(ys.map((val, i) => [val, i]));
 
-        if (isValid(rect)) maxArea = area;
+  const H = ys.length - 1;
+  const W = xs.length - 1;
+  const grid = new Int8Array(H * W);
+
+  interface VEdge {
+    x: number;
+    minY: number;
+    maxY: number;
+  }
+  const vEdges: VEdge[] = [];
+  const n = points.length;
+  for (let k = 0; k < n; k++) {
+    const p1 = points[k];
+    const p2 = points[(k + 1) % n];
+    if (p1.x === p2.x) {
+      vEdges.push({
+        x: p1.x,
+        minY: Math.min(p1.y, p2.y),
+        maxY: Math.max(p1.y, p2.y),
+      });
+    }
+  }
+
+  for (let r = 0; r < H; r++) {
+    const midY = (ys[r] + ys[r + 1]) / 2;
+
+    const activeEdges = vEdges
+      .filter((e) => e.minY <= midY && e.maxY >= midY)
+      .map((e) => e.x)
+      .sort((a, b) => a - b);
+
+    for (let k = 0; k < activeEdges.length; k += 2) {
+      for (let k = 0; k < activeEdges.length; k += 2) {
+        const startX = activeEdges[k];
+        const endX = activeEdges[k + 1];
+
+        const cStart = xMap.get(startX)!;
+        const cEnd = xMap.get(endX)!;
+
+        for (let c = cStart; c < cEnd; c++) {
+          grid[r * W + c] = 1;
+        }
       }
     }
-    console.log(`${partName} Max Area: ${maxArea}`);
-    console.timeEnd(partName);
-  };
 
-  solveFor("Part 1", () => true);
-  solveFor("Part 2", (r) => {
-    const corners = [
-      { x: r.minX, y: r.minY },
-      { x: r.maxX, y: r.minY },
-      { x: r.maxX, y: r.maxY },
-      { x: r.minX, y: r.maxY },
-    ];
-    return (
-      corners.every((c) => isPointInPolygon(c, points)) &&
-      !intersects(r, points)
-    );
-  });
+    const sums = new Int32Array((H + 1) * (W + 1));
+    const getSum = (r: number, c: number) => sums[r * (W + 1) + c];
+    const setSum = (r: number, c: number, val: number) =>
+      (sums[r * (W + 1) + c] = val);
+
+    for (let r = 0; r < H; r++) {
+      for (let c = 0; c < W; c++) {
+        const val = grid[r * W + c];
+        const top = getSum(r, c + 1);
+        const left = getSum(r + 1, c);
+        const topLeft = getSum(r, c);
+        setSum(r + 1, c + 1, val + top + left - topLeft);
+      }
+    }
+
+    let maxAreaP2 = 0;
+
+    for (let i = 0; i < points.length; i++) {
+      for (let j = i + 1; j < points.length; j++) {
+        const p1 = points[i];
+        const p2 = points[j];
+
+        const w = Math.abs(p1.x - p2.x) + 1;
+        const h = Math.abs(p1.y - p2.y) + 1;
+        const area = w * h;
+
+        if (area <= maxAreaP2) continue;
+
+        const x1 = xMap.get(Math.min(p1.x, p2.x))!;
+        const x2 = xMap.get(Math.max(p1.x, p2.x))!;
+        const y1 = yMap.get(Math.min(p1.y, p2.y))!;
+        const y2 = yMap.get(Math.max(p1.y, p2.y))!;
+
+        const numCells = (y2 - y1) * (x2 - x1);
+
+        const total =
+          getSum(y2, x2) - getSum(y1, x2) - getSum(y2, x1) + getSum(y1, x1);
+
+        if (total === numCells) {
+          maxAreaP2 = area;
+        }
+      }
+    }
+
+    console.log(`Part 2 Max Area: ${maxAreaP2}`);
+    console.timeEnd("Part 2");
+  }
 }
 
 solve();
