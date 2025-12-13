@@ -1,4 +1,5 @@
 # Day 01
+
 Due to new security protocols, the password is locked in the safe below. Please see the attached document for the new combination."
 
 The safe has a dial with only an arrow on it; around the dial are the numbers 0 through 99 in order. As you turn the dial, it makes a small click noise as it reaches each number.
@@ -45,4 +46,3 @@ Because the dial points at 0 a total of three times during this process, the pas
 Analyze the rotations in your attached document. What's the actual password to open the door?
 
 To begin, get your puzzle input.
-

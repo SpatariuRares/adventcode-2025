@@ -1,16 +1,13 @@
-import * as fs from "fs";
-import * as path from "path";
+import * as fs from 'fs';
+import * as path from 'path';
 
-const inputContent = fs.readFileSync(
-  path.join(__dirname, "input.txt"),
-  "utf-8"
-);
+const inputContent = fs.readFileSync(path.join(__dirname, 'input.txt'), 'utf-8');
 
 function extractProblemBlocks(rawData: string): string[][] {
   const rawLines = rawData.split(/\r?\n/);
 
   const gridWidth = rawLines[0].length;
-  const gridLines = rawLines.map((l) => l.padEnd(gridWidth, " "));
+  const gridLines = rawLines.map((l) => l.padEnd(gridWidth, ' '));
   const gridHeight = gridLines.length;
 
   const blocks: string[][] = [];
@@ -18,7 +15,7 @@ function extractProblemBlocks(rawData: string): string[][] {
   while (currentColumn < gridWidth) {
     let isCurrentColumnEmpty = true;
     for (let row = 0; row < gridHeight; row++) {
-      if (gridLines[row][currentColumn] !== " ") {
+      if (gridLines[row][currentColumn] !== ' ') {
         isCurrentColumnEmpty = false;
         break;
       }
@@ -33,7 +30,7 @@ function extractProblemBlocks(rawData: string): string[][] {
     while (currentColumn < gridWidth) {
       let isColEmpty = true;
       for (let row = 0; row < gridHeight; row++) {
-        if (gridLines[row][currentColumn] !== " ") {
+        if (gridLines[row][currentColumn] !== ' ') {
           isColEmpty = false;
           break;
         }
@@ -68,7 +65,7 @@ function solveProblemBlock(blockLines: string[]): {
     if (row === operatorRowIndex) continue;
 
     const rowContent = blockLines[row].trim();
-    if (rowContent !== "") {
+    if (rowContent !== '') {
       const val = parseInt(rowContent, 10);
       if (!isNaN(val)) rowNumbers.push(val);
     }
@@ -76,22 +73,22 @@ function solveProblemBlock(blockLines: string[]): {
 
   const colNumbers: number[] = [];
   for (let col = 0; col < width; col++) {
-    let colString = "";
+    let colString = '';
     for (let row = 0; row < height; row++) {
       if (row === operatorRowIndex) continue;
       colString += blockLines[row][col];
     }
 
     const trimmedCol = colString.trim();
-    if (trimmedCol !== "") {
+    if (trimmedCol !== '') {
       const val = parseInt(trimmedCol, 10);
       if (!isNaN(val)) colNumbers.push(val);
     }
   }
 
   const calculate = (nums: number[], op: string) => {
-    if (op === "+") return nums.reduce((sum, n) => sum + n, 0);
-    if (op === "*") return nums.reduce((prod, n) => prod * n, 1);
+    if (op === '+') return nums.reduce((sum, n) => sum + n, 0);
+    if (op === '*') return nums.reduce((prod, n) => prod * n, 1);
     return 0;
   };
 
@@ -111,5 +108,5 @@ for (const block of allBlocks) {
   totalPart2 += result.part2;
 }
 
-console.log("Part 1:", totalPart1);
-console.log("Part 2:", totalPart2);
+console.log('Part 1:', totalPart1);
+console.log('Part 2:', totalPart2);

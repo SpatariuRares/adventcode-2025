@@ -1,6 +1,6 @@
-import * as fs from "fs";
-import * as path from "path";
-import * as readline from "readline";
+import * as fs from 'fs';
+import * as path from 'path';
+import * as readline from 'readline';
 
 async function parseInput(filePath: string): Promise<string[]> {
   const absolutePath = path.resolve(__dirname, filePath);
@@ -22,7 +22,7 @@ async function parseInput(filePath: string): Promise<string[]> {
 
 function findStart(lines: string[]): { row: number; col: number } | null {
   for (let row = 0; row < lines.length; row++) {
-    const idx = lines[row].indexOf("S");
+    const idx = lines[row].indexOf('S');
     if (idx !== -1) return { row: row, col: idx };
   }
   return null;
@@ -31,7 +31,7 @@ function findStart(lines: string[]): { row: number; col: number } | null {
 // ... existing code ...
 
 async function solve() {
-  const inputPath = process.argv[2] || "input.txt";
+  const inputPath = process.argv[2] || 'input.txt';
   const lines = await parseInput(inputPath);
 
   solvePart1Bitwise(lines);
@@ -60,7 +60,7 @@ function solvePart1Bitwise(lines: string[]) {
     let splittersMask = 0n;
 
     for (let c = 0; c < Width; c++) {
-      if (rowStr[c] === "^") {
+      if (rowStr[c] === '^') {
         splittersMask |= 1n << BigInt(c);
       }
     }
@@ -110,7 +110,7 @@ class Part2Solver {
 
         const char = rowStr[c];
 
-        if (char === "^") {
+        if (char === '^') {
           // Look at r+1, c-1 and r+1, c+1
           // If index is out of bounds, it returns 1n (base case: went off edge)
           const leftVal = c - 1 < 0 ? 1n : nextRowCounts[c - 1];
@@ -131,7 +131,7 @@ class Part2Solver {
 function solvePart2Recursive(lines: string[]) {
   const start = findStart(lines);
   if (!start) {
-    console.error("Start not found");
+    console.error('Start not found');
     return;
   }
 

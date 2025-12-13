@@ -26,7 +26,9 @@ The total output joltage is the sum of the maximum joltage from each bank, so in
 
 There are many batteries in front of you. Find the maximum joltage possible from each bank; what is the total output joltage?
 
---- Part Two ---
+---
+
+Part Two ---
 The escalator doesn't move. The Elf explains that it probably needs more joltage to overcome the static friction of the system and hits the big red "joltage limit safety override" button. You lose count of the number of times she needs to confirm "yes, I'm sure" and decorate the lobby a bit while you wait.
 
 Now, you need to make the largest joltage by turning on exactly twelve batteries within each bank.

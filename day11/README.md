@@ -38,7 +38,9 @@ How many different paths lead from you to out?
 
 To begin, get your puzzle input.
 
---- Part Two ---
+---
+
+Part Two ---
 Thanks in part to your analysis, the Elves have figured out a little bit about the issue. They now know that the problematic data path passes through both dac (a digital-to-analog converter) and fft (a device which performs a fast Fourier transform).
 
 They're still not sure which specific path is the problem, and so they now need you to find every path from svr (the server rack) to out. However, the paths you find must all also visit both dac and fft (in any order).

@@ -72,7 +72,9 @@ Ultimately, the largest rectangle you can make in this example has area 50. One 
 ..............
 Using two red tiles as opposite corners, what is the largest area of any rectangle you can make?
 
---- Part Two ---
+---
+
+Part Two ---
 The Elves just remembered: they can only switch out tiles that are red or green. So, your rectangle can only include red or green tiles.
 
 In your list, every red tile is connected to the red tile before and after it by a straight line of green tiles. The list wraps, so the first red tile is also connected to the last red tile. Tiles that are adjacent in your list will always be on either the same row or the same column.

@@ -1,22 +1,17 @@
 {
-    "version": "0.2.0",
-    "configurations": [
-        {
-            "name": "Debug Current TS File",
-            "type": "node",
-            "request": "launch",
-            "program": "${file}",
-            "args": [],
-            "runtimeArgs": [
-                "-r",
-                "ts-node/register"
-            ],
-            "cwd": "${workspaceFolder}",
-            "internalConsoleOptions": "openOnSessionStart",
-            "console": "integratedTerminal",
-            "skipFiles": [
-                "<node_internals>/**"
-            ]
-        }
-    ]
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Debug Current TS File",
+      "type": "node",
+      "request": "launch",
+      "program": "${file}",
+      "args": [],
+      "runtimeArgs": ["-r", "ts-node/register"],
+      "cwd": "${workspaceFolder}",
+      "internalConsoleOptions": "openOnSessionStart",
+      "console": "integratedTerminal",
+      "skipFiles": ["<node_internals>/**"]
+    }
+  ]
 }

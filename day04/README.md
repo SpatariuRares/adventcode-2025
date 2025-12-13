@@ -39,7 +39,9 @@ Consider your complete diagram of the paper roll locations. How many rolls of pa
 
 # Part 2
 
---- Part Two ---
+---
+
+Part Two ---
 Now, the Elves just need help accessing as much of the paper as they can.
 
 Once a roll of paper can be accessed by a forklift, it can be removed. Once a roll of paper is removed, the forklifts might be able to access more rolls of paper, which they might also be able to remove. How many total rolls of paper could the Elves remove if they keep repeating this process?

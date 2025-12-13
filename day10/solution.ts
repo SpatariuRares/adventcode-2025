@@ -1,5 +1,5 @@
-import * as fs from "fs";
-import * as path from "path";
+import * as fs from 'fs';
+import * as path from 'path';
 
 interface Machine {
   buttons: number[][];
@@ -9,24 +9,22 @@ interface Machine {
 
 function parseMachines(input: string): Machine[] {
   return input
-    .split("\n")
+    .split('\n')
     .filter((l) => l.trim())
     .map((line) => {
       const matchGF2 = line.match(/^\[([\.#]+)\]/);
-      const targetGF2 = matchGF2
-        ? matchGF2[1].split("").map((c) => (c === "#" ? 1 : 0))
-        : [];
+      const targetGF2 = matchGF2 ? matchGF2[1].split('').map((c) => (c === '#' ? 1 : 0)) : [];
 
       const matchReal = line.match(/\{([\d,]+)\}/);
-      const targetReal = matchReal ? matchReal[1].split(",").map(Number) : [];
+      const targetReal = matchReal ? matchReal[1].split(',').map(Number) : [];
 
       const N = Math.max(targetGF2.length, targetReal.length);
       const buttons: number[][] = [];
-      const parts = line.split(" ");
+      const parts = line.split(' ');
 
       for (const p of parts) {
-        if (p.startsWith("(")) {
-          const ind = p.slice(1, -1).split(",").map(Number);
+        if (p.startsWith('(')) {
+          const ind = p.slice(1, -1).split(',').map(Number);
           const col = new Array(N).fill(0);
           ind.forEach((i) => (col[i] = 1));
           buttons.push(col);
@@ -45,10 +43,7 @@ function solveGF2(machine: Machine): number | null {
   const M = buttons.length;
   if (N === 0) return 0;
 
-  const A = Array.from({ length: N }, (_, r) => [
-    ...buttons.map((col) => col[r]),
-    targetGF2[r],
-  ]);
+  const A = Array.from({ length: N }, (_, r) => [...buttons.map((col) => col[r]), targetGF2[r]]);
 
   const { pivots, freeVars, reduced } = gaussianGF2(A, N, M);
   if (!checkConsistencyGF2(reduced, N, M)) return null;
@@ -61,10 +56,7 @@ function solveReal(machine: Machine): number | null {
   const M = buttons.length;
   if (N === 0) return 0;
 
-  const A = Array.from({ length: N }, (_, r) => [
-    ...buttons.map((col) => col[r]),
-    targetReal[r],
-  ]);
+  const A = Array.from({ length: N }, (_, r) => [...buttons.map((col) => col[r]), targetReal[r]]);
 
   const { pivots, freeVars, reduced } = gaussianReal(A, N, M);
   if (!checkConsistencyReal(reduced, N, M)) return null;
@@ -122,7 +114,7 @@ function findMinWeightGF2(
   mat: number[][],
   pivots: { r: number; c: number }[],
   freeVars: number[],
-  M: number
+  M: number,
 ): number {
   // Base solution
   const sol = new Array(M).fill(0);
@@ -215,7 +207,7 @@ function findMinSumReal(
   pivots: { r: number; c: number }[],
   freeVars: number[],
   M: number,
-  maxVal: number
+  maxVal: number,
 ): number | null {
   let minTotal = Infinity;
   const EPS = 1e-9;
@@ -253,16 +245,14 @@ function findMinSumReal(
 }
 
 try {
-  const input = fs
-    .readFileSync(path.join(__dirname, "input.txt"), "utf-8")
-    .trim();
+  const input = fs.readFileSync(path.join(__dirname, 'input.txt'), 'utf-8').trim();
   const machines = parseMachines(input);
 
   const part1 = machines.reduce((sum, m) => sum + (solveGF2(m) ?? 0), 0);
-  console.log("Part 1:", part1);
+  console.log('Part 1:', part1);
 
   const part2 = machines.reduce((sum, m) => sum + (solveReal(m) ?? 0), 0);
-  console.log("Part 2:", part2);
+  console.log('Part 2:', part2);
 } catch (e) {
-  console.error("Error:", e);
+  console.error('Error:', e);
 }

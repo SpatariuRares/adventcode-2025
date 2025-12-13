@@ -1,5 +1,5 @@
-import * as fs from "fs";
-import * as path from "path";
+import * as fs from 'fs';
+import * as path from 'path';
 
 interface Point {
   x: number;
@@ -14,19 +14,19 @@ interface Rect {
 
 const readInput = (filename: string): Point[] =>
   fs
-    .readFileSync(path.join(__dirname, filename), "utf-8")
-    .split("\n")
+    .readFileSync(path.join(__dirname, filename), 'utf-8')
+    .split('\n')
     .map((l) => l.trim())
     .filter(Boolean)
     .map((l) => {
-      const [x, y] = l.split(",").map(Number);
+      const [x, y] = l.split(',').map(Number);
       return { x, y };
     });
 
 function solve() {
-  const points = readInput("input.txt");
+  const points = readInput('input.txt');
 
-  console.time("Part 1");
+  console.time('Part 1');
   let maxAreaP1 = 0;
   for (let i = 0; i < points.length; i++) {
     for (let j = i + 1; j < points.length; j++) {
@@ -37,9 +37,9 @@ function solve() {
     }
   }
   console.log(`Part 1 Max Area: ${maxAreaP1}`);
-  console.timeEnd("Part 1");
+  console.timeEnd('Part 1');
 
-  console.time("Part 2");
+  console.time('Part 2');
 
   const xs = Array.from(new Set(points.map((p) => p.x))).sort((a, b) => a - b);
   const ys = Array.from(new Set(points.map((p) => p.y))).sort((a, b) => a - b);
@@ -93,8 +93,7 @@ function solve() {
 
     const sums = new Int32Array((H + 1) * (W + 1));
     const getSum = (r: number, c: number) => sums[r * (W + 1) + c];
-    const setSum = (r: number, c: number, val: number) =>
-      (sums[r * (W + 1) + c] = val);
+    const setSum = (r: number, c: number, val: number) => (sums[r * (W + 1) + c] = val);
 
     for (let r = 0; r < H; r++) {
       for (let c = 0; c < W; c++) {
@@ -126,8 +125,7 @@ function solve() {
 
         const numCells = (y2 - y1) * (x2 - x1);
 
-        const total =
-          getSum(y2, x2) - getSum(y1, x2) - getSum(y2, x1) + getSum(y1, x1);
+        const total = getSum(y2, x2) - getSum(y1, x2) - getSum(y2, x1) + getSum(y1, x1);
 
         if (total === numCells) {
           maxAreaP2 = area;
@@ -136,7 +134,7 @@ function solve() {
     }
 
     console.log(`Part 2 Max Area: ${maxAreaP2}`);
-    console.timeEnd("Part 2");
+    console.timeEnd('Part 2');
   }
 }
 

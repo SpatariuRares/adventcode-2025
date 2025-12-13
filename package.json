@@ -10,7 +10,9 @@
   "author": "",
   "license": "ISC",
   "devDependencies": {
+    "@trivago/prettier-plugin-sort-imports": "^6.0.0",
     "@types/node": "^24.10.1",
+    "prettier": "^3.7.4",
     "ts-node": "^10.9.2",
     "typescript": "^5.9.3"
   }

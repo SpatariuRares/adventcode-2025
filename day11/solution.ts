@@ -1,21 +1,19 @@
-import * as fs from "fs";
-import * as path from "path";
+import * as fs from 'fs';
+import * as path from 'path';
 
-const input = fs
-  .readFileSync(path.join(__dirname, "input.txt"), "utf-8")
-  .trim();
+const input = fs.readFileSync(path.join(__dirname, 'input.txt'), 'utf-8').trim();
 
 type Graph = Map<string, string[]>;
 type Memo = Map<string, number>;
 
 function parseInput(data: string): Graph {
   const graph: Graph = new Map();
-  const lines = data.split("\n");
+  const lines = data.split('\n');
 
   for (const line of lines) {
     if (!line.trim()) continue;
 
-    const [node, destinationsStr] = line.split(":");
+    const [node, destinationsStr] = line.split(':');
 
     if (!node || !destinationsStr) {
       continue;
@@ -27,12 +25,7 @@ function parseInput(data: string): Graph {
   return graph;
 }
 
-function countPaths(
-  current: string,
-  target: string,
-  graph: Graph,
-  memo: Memo
-): number {
+function countPaths(current: string, target: string, graph: Graph, memo: Memo): number {
   if (memo.has(current)) {
     return memo.get(current)!;
   }
@@ -59,8 +52,8 @@ function part1(data: string): number {
   const graph = parseInput(data);
   const memo: Memo = new Map();
 
-  const START_NODE = "you";
-  const TARGET_NODE = "out";
+  const START_NODE = 'you';
+  const TARGET_NODE = 'out';
 
   return countPaths(START_NODE, TARGET_NODE, graph, memo);
 }
@@ -82,10 +75,10 @@ function countPathSequence(graph: Graph, nodes: string[]): number {
 function part2(data: string): number {
   const graph = parseInput(data);
 
-  const START = "svr";
-  const END = "out";
-  const VIA_1 = "dac";
-  const VIA_2 = "fft";
+  const START = 'svr';
+  const END = 'out';
+  const VIA_1 = 'dac';
+  const VIA_2 = 'fft';
 
   return (
     countPathSequence(graph, [START, VIA_1, VIA_2, END]) +
@@ -93,5 +86,5 @@ function part2(data: string): number {
   );
 }
 
-console.log("Part 1:", part1(input));
-console.log("Part 2:", part2(input));
+console.log('Part 1:', part1(input));
+console.log('Part 2:', part2(input));

@@ -124,7 +124,9 @@ Analyze your manifold diagram. How many times will the beam be split?
 
 To begin, get your puzzle input.
 
---- Part Two ---
+---
+
+Part Two ---
 With your analysis of the manifold complete, you begin fixing the teleporter. However, as you open the side of the teleporter to replace the broken manifold, you are surprised to discover that it isn't a classical tachyon manifold - it's a quantum tachyon manifold.
 
 With a quantum tachyon manifold, only a single tachyon particle is sent through the manifold. A tachyon particle takes both the left and right path of each splitter encountered.

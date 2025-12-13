@@ -1,9 +1,7 @@
-import * as fs from "fs";
-import * as path from "path";
+import * as fs from 'fs';
+import * as path from 'path';
 
-const input = fs
-  .readFileSync(path.join(__dirname, "input.txt"), "utf-8")
-  .trim();
+const input = fs.readFileSync(path.join(__dirname, 'input.txt'), 'utf-8').trim();
 
 interface Point3D {
   id: number;
@@ -70,8 +68,8 @@ class UnionFind {
 }
 
 function parseInput(data: string): Point3D[] {
-  return data.split("\n").map((line, index) => {
-    const [x, y, z] = line.trim().split(",").map(Number);
+  return data.split('\n').map((line, index) => {
+    const [x, y, z] = line.trim().split(',').map(Number);
     return { id: index, x, y, z };
   });
 }
@@ -129,5 +127,5 @@ function part2(points: Point3D[], connections: Connection[]): number {
 const points = parseInput(input);
 const connections = getSortedConnections(points);
 
-console.log("Part 1:", part1(points, connections));
-console.log("Part 2:", part2(points, connections));
+console.log('Part 1:', part1(points, connections));
+console.log('Part 2:', part2(points, connections));
